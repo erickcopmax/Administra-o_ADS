@@ -37,3 +37,14 @@ CREATE TABLE Chamados_Suporte (
     Custo_Manutencao DECIMAL(10,2),
     FOREIGN KEY (ID_Ativo) REFERENCES Ativos_TI(ID_Ativo)
 );
+
+-- Consulta Analítica para consolidação de KPIs por setor
+SELECT 
+    a.Setor,
+    COUNT(c.ID_Chamado) AS Total_Chamados,
+    AVG(c.Tempo_Horas_Resolucao) AS Tempo_Medio_Resolucao_Horas,
+    SUM(c.Custo_Manutencao) AS Custo_Total_Manutencao,
+    ROUND((SUM(CASE WHEN c.SLA_Cumprido = 'SIM' THEN 1 ELSE 0 END) * 100.0 / COUNT(c.ID_Chamado)), 2) AS Perc_SLA_Atendido
+FROM Chamados_Suporte c
+JOIN Ativos_TI a ON c.ID_Ativo = a.ID_Ativo
+GROUP BY a.Setor;
